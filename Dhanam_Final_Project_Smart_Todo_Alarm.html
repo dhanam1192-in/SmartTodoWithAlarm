@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My To-Do List</title>
+<style>
+/* ---- Global Styles ---- */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: url('C:/Users/WELCOME/Desktop/todolist-with-alarm.jpg') center center / cover no-repeat fixed;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #2f2f2f;
+}
+
+
+/* ---- Transparent Container with Orange Border ---- */
+.container {
+  background: rgba(255, 255, 255, 0.1); /* light transparency for glass effect */
+  padding: 55px 40px 35px;
+  border-radius: 16px;
+  border: 2px solid #E0580A; /* orange border */
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.25);
+  width: 600px;
+  min-height: 250px;
+  backdrop-filter: blur(2px); /* frosted glass effect */
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 28px rgba(224, 88, 10, 0.5); /* glowing orange shadow on hover */
+}
+
+
+/* ---- Title ---- */
+h2 {
+  font-size: 24px;
+  color: #fff;
+  background: #E0580A;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(30, 30, 30, 0.3);
+  margin-bottom: 20px;
+}
+h2 img {
+  width: 34px;
+  height: 34px;
+  margin-left: 8px;
+}
+
+/* ---- Input Section ---- */
+.input-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
+#taskInput, #alarmInput {
+  flex: 1 1 46%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  background: #fff;
+}
+#taskInput::placeholder {
+  color: #777;
+}
+
+/* ---- Buttons ---- */
+button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+button:hover {
+  transform: translateY(-1px);
+}
+
+/* ---- Input Buttons ---- */
+.input-group button {
+  background: #E0580A;
+}
+.input-group button:hover {
+  background: #FF861A;
+}
+
+/* ---- Task List ---- */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0;
+}
+li {
+  background: rgba(250, 250, 250, 0.95);
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #2f2f2f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(200, 200, 200, 0.4);
+}
+li.completed span {
+  text-decoration: line-through;
+  color: red;
+}
+.task-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+li small {
+  font-size: 0.8em;
+  color: #305b8c;
+}
+
+/* ---- Task Buttons ---- */
+.task-buttons {
+  display: flex;
+  gap: 8px;
+}
+.task-buttons button:nth-child(1) {
+  background: #6b8e23;
+}
+.task-buttons button:nth-child(1):hover {
+  background: #5f7f1f;
+}
+.task-buttons button:nth-child(2) {
+  background: #cc4d29;
+}
+.task-buttons button:nth-child(2):hover {
+  background: #b43e21;
+}
+
+/* ---- Error Message ---- */
+.error {
+  color: red;
+  font-bold: 12;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+   
+#popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #cc4d29;
+  color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  display: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  animation: fadeIn 0.5s;
+  z-index: 1000;
+}
+
+#popup button {
+  background: #fff;
+  color: #cc4d29;
+  border: 1px solid #cc4d29;
+  padding: 8px 12px;
+  margin-top: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#popup button:hover {
+  background: #ffe6e2;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Smart TODO Alarm<img src="C:/Users/WELCOME/Desktop/todoalarm.png" alt="icon"></h2>
+
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Enter a task...">
+      <input type="datetime-local" id="alarmInput">
+      <button onclick="addTask()">Add</button>
+      <button onclick="clearTasks()">Clear</button>
+    </div>
+
+    <p class="error" id="errorMsg"></p>
+    <ul id="taskList"></ul>
+  </div>
+
+  <audio id="alarmSound" src="https://audio-previews.elements.envatousercontent.com/files/286545509/preview.mp3" preload="auto"></audio>
+  <div id="popup"></div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let alarmTimers = [];
+let currentAlarm = null;
+let lastTask = "";
+
+// Request Notification Permission
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
+
+function addTask() {
+  let input = document.getElementById("taskInput");
+  let alarmInput = document.getElementById("alarmInput");
+  let errorMsg = document.getElementById("errorMsg");
+  let task = input.value.trim();
+  let alarmTime = alarmInput.value;
+
+  try {
+    if (task === "") throw "Task cannot be empty!";
+    if (tasks.some(t => t.text === task)) throw "Task already exists!";
+
+    tasks.push({ text: task, completed: false, alarm: alarmTime });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    displayTasks();
+    input.value = "";
+    alarmInput.value = "";
+    errorMsg.textContent = "";
+
+    if (alarmTime) setAlarm(task, alarmTime);
+  } catch (err) {
+    errorMsg.textContent = err;
+  }
+}
+
+function clearTasks() {
+  tasks = [];
+  localStorage.removeItem("tasks");
+  displayTasks();
+  alarmTimers.forEach(id => clearTimeout(id));
+  alarmTimers = [];
+}
+
+function taskComplete(index) {
+  tasks[index].completed = !tasks[index].completed;
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  displayTasks();
+}
+
+function deleteTask(index) {
+  tasks.splice(index, 1);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  displayTasks();
+}
+
+function editTask(index) {
+  let newTask = prompt("Edit your task:", tasks[index].text);
+  let newAlarm = prompt("Edit alarm time (yyyy-mm-ddThh:mm):", tasks[index].alarm);
+  if (!newTask || newTask.trim() === "") return alert("Task cannot be empty!");
+  tasks[index].text = newTask.trim();
+  if (newAlarm && newAlarm.trim() !== "") {
+    tasks[index].alarm = newAlarm.trim();
+    setAlarm(tasks[index].text, tasks[index].alarm);
+  }
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  displayTasks();
+}
+
+function displayTasks() {
+  let taskList = document.getElementById("taskList");
+  taskList.innerHTML = "";
+  tasks.forEach((task, index) => {
+    taskList.innerHTML += `
+      <li class="${task.completed ? 'completed' : ''}">
+        <div class="task-content">
+          <input type="checkbox" onclick="taskComplete(${index})" ${task.completed ? "checked" : ""}>
+          <span class="task-text">${task.text}</span>
+          ${task.alarm ? `<small>⏰ ${task.alarm}</small>` : ""}
+        </div>
+        <div class="task-buttons">
+          <button onclick="editTask(${index})">Edit</button>
+          <button onclick="deleteTask(${index})">Delete</button>
+        </div>
+      </li>`;
+  });
+}
+function setAlarm(task, alarmTime) {
+  let delay = new Date(alarmTime).getTime()-Date.now();
+  if(delay>0) {
+    let id=setTimeout(()=>playAlarm(task), delay);
+    alarmTimers.push(id);
+  }
+}
+
+function playAlarm(task) {
+  let sound=document.getElementById("alarmSound");
+  sound.loop=true;
+  sound.play();
+  currentAlarm=sound;
+  lastTask=task;
+
+  showPopup(task);
+  sendNotification(task);
+
+  // Auto stop after 1 min
+  setTimeout(stopAlarm, 60000);
+}
+
+function showPopup(task) {
+  let p=document.getElementById("popup");
+  p.innerHTML=`
+    ⏰ Reminder: ${task}<br>
+    <button onclick="snoozeAlarm('${task}')">Snooze 5 min</button>
+    <button onclick="stopAlarm()">Stop</button>
+  `;
+  p.style.display="block";
+}
+
+function sendNotification(task){
+  if("Notification" in window && Notification.permission==="granted" && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({task});
+  }
+}
+
+function stopAlarm(){
+  if(currentAlarm){ currentAlarm.pause(); currentAlarm.currentTime=0; currentAlarm=null; }
+  document.getElementById("popup").style.display="none";
+}
+
+function snoozeAlarm(task) {
+      stopAlarm();
+
+      // Add 5 minutes in LOCAL TIME (fixed)
+      let t = new Date(Date.now() + 5 * 60000);
+      let localTime = t.getFullYear() + "-" +
+        String(t.getMonth() + 1).padStart(2, '0') + "-" +
+        String(t.getDate()).padStart(2, '0') + "T" +
+        String(t.getHours()).padStart(2, '0') + ":" +
+        String(t.getMinutes()).padStart(2, '0');
+
+      setAlarm(task, localTime);
+      showPopupMessage("🔕 Snoozed for 5 minutes!");
+    }
+
+function showPopupMessage(msg){
+  let p=document.getElementById("popup");
+  p.textContent=msg;
+  p.style.display="block";
+  setTimeout(()=>{p.style.display="none";},4000);
+}
+
+document.getElementById("taskInput").addEventListener("keydown", e=>{ if(e.key==="Enter") addTask(); });
+document.getElementById("alarmInput").addEventListener("keydown", e=>{ if(e.key==="Enter") addTask(); });
+
+displayTasks();
+
+</script>
+</body>
+</html>
